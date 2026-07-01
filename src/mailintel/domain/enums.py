@@ -10,6 +10,14 @@ Author: MailIntel AI Team
 from enum import StrEnum
 
 
+class Operator(StrEnum):
+    """Supported rule operators."""
+
+    EQUALS = "equals"
+    CONTAINS = "contains"
+    REGEX = "regex"
+
+
 class Severity(StrEnum):
     """Represents the impact of a piece of evidence."""
 
