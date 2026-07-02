@@ -1,0 +1,13 @@
+From: attacker@example.com
+To: victim@example.com
+Subject: Payroll Update
+Date: Mon, 14 Jul 2025 10:15:00 +0000
+Message-ID: <123456@example.com>
+Received-SPF: fail
+
+Hello,
+
+Please review the attached payroll document.
+
+Regards,
+Finance Team
