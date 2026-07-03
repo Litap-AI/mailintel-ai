@@ -1,8 +1,6 @@
 from pathlib import Path
 
-from mailintel.workflows.analyze_email import (
-    AnalyzeEmailWorkflow,
-)
+from mailintel.workflows.analyze_email import AnalyzeEmailWorkflow
 
 
 def main() -> None:
@@ -10,26 +8,26 @@ def main() -> None:
 
     investigation = workflow.run(Path("samples/phishing/sample.eml"))
 
-    print("\n========== INVESTIGATION ==========\n")
+    print("\n==============================")
+    print("        MAILINTEL AI")
+    print("==============================\n")
 
-    print(f"Title : {investigation.title}")
+    print(f"Email      : {investigation.title}")
     print(f"Risk Score : {investigation.risk_score}/100")
 
     print("\n========== EVIDENCE ==========\n")
 
     for evidence in investigation.evidence:
-        print(f"Title      : {evidence.title}")
-        print(f"Value      : {evidence.observed_value}")
-        print(f"Severity   : {evidence.severity}")
-        print("-" * 40)
+        print(f"[{evidence.severity.value.upper()}] {evidence.title}")
+        print(f"Value : {evidence.observed_value}")
+        print()
 
-    print("\n========== FINDINGS ==========\n")
+    print("========== FINDINGS ==========\n")
 
     for finding in investigation.findings:
-        print(f"Title      : {finding.title}")
-        print(f"Severity   : {finding.severity}")
-        print(f"Confidence : {finding.confidence}")
-        print("-" * 40)
+        print(f"[{finding.severity.value.upper()}] {finding.title}")
+
+    print("\n==============================")
 
 
 if __name__ == "__main__":
