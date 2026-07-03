@@ -41,6 +41,7 @@ class EvidenceType(StrEnum):
     LANGUAGE = "language"
     BEHAVIOR = "behavior"
     STRUCTURE = "structure"
+    URL = "url"
 
 
 class EvidenceSource(StrEnum):

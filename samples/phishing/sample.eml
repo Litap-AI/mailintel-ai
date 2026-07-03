@@ -10,6 +10,9 @@ Authentication-Results: mx.google.com; spf=fail smtp.mailfrom=example.com; dkim=
 Hello,
 
 Please review the attached payroll document.
+Please verify your account immediately.
+
+https://evil.example.com/login
 
 Regards,
 Finance Team

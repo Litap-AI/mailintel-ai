@@ -33,4 +33,6 @@ class Investigation(BaseModel):
 
     hypotheses: list[Hypothesis] = Field(default_factory=list)
 
+    risk_score: int = 0
+
     metadata: dict[str, str] = Field(default_factory=dict)

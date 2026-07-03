@@ -9,6 +9,7 @@ from mailintel.domain.rule import Rule
 from mailintel.engine.hypothesis_engine import HypothesisEngine
 from mailintel.engine.inference_engine import InferenceEngine
 from mailintel.engine.rule_engine import RuleEngine
+from mailintel.scoring.risk_engine import RiskEngine
 
 
 class InvestigationService:
@@ -18,15 +19,14 @@ class InvestigationService:
         self._rule_engine = RuleEngine()
         self._inference_engine = InferenceEngine()
         self._hypothesis_engine = HypothesisEngine()
+        self._risk_engine = RiskEngine()
 
     def analyze(
         self,
         investigation: Investigation,
         rules: list[Rule],
     ) -> Investigation:
-        """
-        Execute a complete investigation.
-        """
+        """Execute a complete investigation."""
 
         findings = self._rule_engine.evaluate(
             investigation.evidence,
@@ -41,10 +41,15 @@ class InvestigationService:
             inferences,
         )
 
+        risk_score = self._risk_engine.calculate(
+            findings,
+        )
+
         return investigation.model_copy(
             update={
                 "findings": findings,
                 "inferences": inferences,
                 "hypotheses": hypotheses,
+                "risk_score": risk_score,
             }
         )
