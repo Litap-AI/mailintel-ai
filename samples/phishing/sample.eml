@@ -4,6 +4,7 @@ Subject: Payroll Update
 Date: Mon, 14 Jul 2025 10:15:00 +0000
 Message-ID: <123456@example.com>
 Received-SPF: fail
+DKIM-Signature: v=1; a=rsa-sha256; d=example.com;
 
 Hello,
 
