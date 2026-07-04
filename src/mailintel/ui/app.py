@@ -1,11 +1,13 @@
+import json
 import tempfile
 from pathlib import Path
 
 import streamlit as st
 
-from mailintel.workflows.analyze_email import (
-    AnalyzeEmailWorkflow,
-)
+from mailintel.ai import InvestigationSummaryEngine
+from mailintel.intelligence import DomainIntelligence
+from mailintel.reporting import ReportBuilder
+from mailintel.workflows.analyze_email import AnalyzeEmailWorkflow
 
 st.set_page_config(
     page_title="MailIntel AI",
@@ -13,58 +15,91 @@ st.set_page_config(
     layout="wide",
 )
 
-st.title("📧 MailIntel AI")
+workflow = AnalyzeEmailWorkflow()
+summary_engine = InvestigationSummaryEngine()
+domain_engine = DomainIntelligence()
+report_builder = ReportBuilder()
 
-st.caption("Evidence Driven Email Investigation Platform")
+st.title("📧 MailIntel AI")
+st.caption("Evidence-Driven Email Investigation Platform")
 
 uploaded_file = st.file_uploader(
-    "Upload an Email (.eml)",
+    "Upload Email (.eml)",
     type=["eml"],
 )
 
 if uploaded_file is not None:
-    with tempfile.NamedTemporaryFile(
-        delete=False,
-        suffix=".eml",
-    ) as tmp:
-        tmp.write(uploaded_file.read())
+    with st.spinner("Analyzing email..."):
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=".eml",
+        ) as tmp:
+            tmp.write(uploaded_file.read())
+            email_path = Path(tmp.name)
 
-        email_path = Path(tmp.name)
+        investigation = workflow.run(email_path)
 
-    workflow = AnalyzeEmailWorkflow()
+    summary = summary_engine.generate(investigation)
+    domains = domain_engine.extract(investigation)
+    report = report_builder.build(investigation)
 
-    investigation = workflow.run(email_path)
+    st.success("Investigation Complete")
 
-    st.success("Analysis Complete")
+    st.progress(min(investigation.risk_score / 100, 1.0))
 
-    col1, col2 = st.columns(2)
+    c1, c2, c3, c4 = st.columns(4)
 
-    with col1:
-        st.metric(
-            "Risk Score",
-            f"{investigation.risk_score}/100",
-        )
-
-    with col2:
-        st.metric(
-            "Evidence",
-            len(investigation.evidence),
-        )
+    c1.metric("Risk", f"{investigation.risk_score}/100")
+    c2.metric("Evidence", len(investigation.evidence))
+    c3.metric("Findings", len(investigation.findings))
+    c4.metric("Domains", len(domains["url_domains"]))
 
     st.divider()
 
-    st.subheader("Evidence")
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(
+        [
+            "📋 Evidence",
+            "🚨 Findings",
+            "🤖 AI Summary",
+            "🌐 Domains",
+            "📄 Report",
+        ]
+    )
 
-    for evidence in investigation.evidence:
-        st.write(f"**{evidence.title}**")
+    with tab1:
+        for evidence in investigation.evidence:
+            with st.expander(evidence.title):
+                st.write(f"Severity: **{evidence.severity.value.upper()}**")
+                st.write(f"Collector: **{evidence.collector}**")
+                st.code(evidence.observed_value)
+                st.write(evidence.description)
 
-        st.write(f"Severity : {evidence.severity.value}")
+    with tab2:
+        if investigation.findings:
+            for finding in investigation.findings:
+                st.error(f"### {finding.title}")
+                st.write(finding.description)
 
-        st.write(f"Value : {evidence.observed_value}")
+        else:
+            st.success("No findings.")
 
-        st.write("---")
+    with tab3:
+        st.info(summary)
 
-    st.subheader("Findings")
+    with tab4:
+        st.subheader("URL Domains")
 
-    for finding in investigation.findings:
-        st.warning(finding.title)
+        for domain in domains["url_domains"]:
+            st.code(domain)
+
+    with tab5:
+        st.subheader("Investigation Report")
+
+        st.json(report)
+
+        st.download_button(
+            "⬇ Download JSON Report",
+            data=json.dumps(report, indent=2),
+            file_name="investigation_report.json",
+            mime="application/json",
+        )
