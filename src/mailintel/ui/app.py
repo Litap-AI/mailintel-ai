@@ -7,6 +7,7 @@ import streamlit as st
 from mailintel.ai import InvestigationSummaryEngine
 from mailintel.intelligence import DomainIntelligence
 from mailintel.reporting import ReportBuilder
+from mailintel.reporting.pdf import PDFReportGenerator
 from mailintel.workflows.analyze_email import AnalyzeEmailWorkflow
 
 st.set_page_config(
@@ -19,6 +20,8 @@ workflow = AnalyzeEmailWorkflow()
 summary_engine = InvestigationSummaryEngine()
 domain_engine = DomainIntelligence()
 report_builder = ReportBuilder()
+pdf_generator = PDFReportGenerator()
+
 
 st.title("📧 MailIntel AI")
 st.caption("Evidence-Driven Email Investigation Platform")
@@ -249,21 +252,37 @@ if uploaded_file is not None:
                         for word in matches:
                             st.code(word)
 
-    # --------------------------------------------------
-    # Report
-    # --------------------------------------------------
+        # --------------------------------------------------
+        # Report
+        # --------------------------------------------------
 
     with tabs[5]:
         st.subheader("Investigation Report")
 
         st.json(report)
 
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            pdf_path = pdf_generator.generate(
+                investigation=investigation,
+                summary=summary,
+                report=report,
+                output_path=Path(tmp_dir) / f"{investigation.id}.pdf",
+            )
+
+            with open(pdf_path, "rb") as pdf_file:
+                st.download_button(
+                    label="📄 Download Executive PDF",
+                    data=pdf_file.read(),
+                    file_name=f"{investigation.id}.pdf",
+                    mime="application/pdf",
+                )
+
         st.download_button(
-            "⬇ Download JSON Report",
+            label="📁 Download JSON Report",
             data=json.dumps(
                 report,
                 indent=2,
             ),
-            file_name="investigation_report.json",
+            file_name=f"{investigation.id}.json",
             mime="application/json",
         )
