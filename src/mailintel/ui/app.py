@@ -23,12 +23,31 @@ report_builder = ReportBuilder()
 st.title("📧 MailIntel AI")
 st.caption("Evidence-Driven Email Investigation Platform")
 
+MAX_FILE_SIZE = 25 * 1024 * 1024  # 25 MB
+
 uploaded_file = st.file_uploader(
-    "Upload Email (.eml)",
+    "Upload RFC822 Email (.eml)",
     type=["eml"],
+    help=("Supported format: RFC822 (.eml)\nMaximum files: 1\nMaximum size: 25 MB"),
 )
 
 if uploaded_file is not None:
+    file_size = uploaded_file.size
+
+    if file_size > MAX_FILE_SIZE:
+        st.error("File exceeds the maximum size of 25 MB.")
+        st.stop()
+
+        st.info(
+            f"""
+    **Selected File**
+
+    • Name: {uploaded_file.name}
+
+    • Size: {file_size / (1024 * 1024):.2f} MB
+    """
+        )
+
     with st.spinner("Analyzing email..."):
         with tempfile.NamedTemporaryFile(
             delete=False,
@@ -47,12 +66,81 @@ if uploaded_file is not None:
 
     st.progress(min(investigation.risk_score / 100.0, 1.0))
 
-    m1, m2, m3, m4 = st.columns(4)
+    risk_profile = investigation.metadata.get("risk_profile", {})
 
-    m1.metric("Risk Score", investigation.risk_score)
-    m2.metric("Evidence", len(investigation.evidence))
-    m3.metric("Findings", len(investigation.findings))
-    m4.metric("Domains", len(domains["url_domains"]))
+    risk_level = risk_profile.get("level", "UNKNOWN")
+
+    level_color = {
+        "VERY LOW": "🟢",
+        "LOW": "🟡",
+        "MEDIUM": "🟠",
+        "HIGH": "🔴",
+        "CRITICAL": "⚫",
+    }
+
+    st.subheader("Overall Investigation Risk")
+
+    col1, col2 = st.columns([2, 1])
+
+    with col1:
+        st.metric(
+            "Risk Score",
+            f"{investigation.risk_score}/100",
+        )
+
+        st.progress(
+            investigation.risk_score / 100,
+        )
+
+    with col2:
+        st.markdown(f"## {level_color.get(risk_level, '⚪')} {risk_level}")
+
+    st.divider()
+
+    m1, m2, m3 = st.columns(3)
+
+    m1.metric(
+        "Evidence",
+        len(investigation.evidence),
+    )
+
+    m2.metric(
+        "Findings",
+        len(investigation.findings),
+    )
+
+    m3.metric(
+        "Domains",
+        len(domains["url_domains"]),
+    )
+
+    st.subheader("Risk Profile")
+
+    authentication = risk_profile.get("authentication", 0)
+    language = risk_profile.get("language", 0)
+    url = risk_profile.get("url", 0)
+    identity = risk_profile.get("identity", 0)
+    attachment = risk_profile.get("attachment", 0)
+
+    st.write("Authentication")
+    st.progress(authentication / 40)
+    st.caption(f"{authentication} / 40")
+
+    st.write("Language Intelligence")
+    st.progress(language / 20)
+    st.caption(f"{language} / 20")
+
+    st.write("URL Intelligence")
+    st.progress(url / 20)
+    st.caption(f"{url} / 20")
+
+    st.write("Identity")
+    st.progress(identity / 10)
+    st.caption(f"{identity} / 10")
+
+    st.write("Attachments")
+    st.progress(attachment / 10)
+    st.caption(f"{attachment} / 10")
 
     st.divider()
 

@@ -5,6 +5,7 @@ Represents the complete state of an investigation.
 """
 
 from datetime import UTC, datetime
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -35,4 +36,4 @@ class Investigation(BaseModel):
 
     risk_score: int = 0
 
-    metadata: dict[str, str] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)

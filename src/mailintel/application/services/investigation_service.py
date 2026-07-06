@@ -41,16 +41,29 @@ class InvestigationService:
             inferences,
         )
 
-        risk_score = self._risk_engine.calculate(
+        profile = self._risk_engine.calculate_profile(
             findings=findings,
             evidence=investigation.evidence,
         )
+
+        metadata = dict(investigation.metadata)
+
+        metadata["risk_profile"] = {
+            "authentication": profile.authentication,
+            "language": profile.language,
+            "url": profile.url,
+            "identity": profile.identity,
+            "attachment": profile.attachment,
+            "total": profile.total,
+            "level": profile.level,
+        }
 
         return investigation.model_copy(
             update={
                 "findings": findings,
                 "inferences": inferences,
                 "hypotheses": hypotheses,
-                "risk_score": risk_score,
+                "risk_score": profile.total,
+                "metadata": metadata,
             }
         )

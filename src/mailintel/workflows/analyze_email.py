@@ -20,6 +20,9 @@ from mailintel.domain.rule import Rule
 from mailintel.parsers.body_parser import BodyParser
 from mailintel.parsers.email_parser import EmailParser
 from mailintel.parsers.header_parser import HeaderParser
+from mailintel.utils.investigation_id import (
+    generate_investigation_id,
+)
 
 
 class AnalyzeEmailWorkflow:
@@ -92,7 +95,7 @@ class AnalyzeEmailWorkflow:
         body = self._body_parser.parse(message)
 
         investigation = Investigation(
-            id="INV-DEMO-001",
+            id=generate_investigation_id(),
             title=path.name,
         )
 
