@@ -42,7 +42,8 @@ class InvestigationService:
         )
 
         risk_score = self._risk_engine.calculate(
-            findings,
+            findings=findings,
+            evidence=investigation.evidence,
         )
 
         return investigation.model_copy(

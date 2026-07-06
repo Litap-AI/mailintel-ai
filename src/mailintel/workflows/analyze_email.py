@@ -8,6 +8,7 @@ from mailintel.application.services.investigation_service import (
     InvestigationService,
 )
 from mailintel.collectors.authentication import AuthenticationCollector
+from mailintel.collectors.language import LanguageCollector
 from mailintel.collectors.url import URLCollector
 from mailintel.domain.condition import Condition
 from mailintel.domain.enums import (
@@ -31,6 +32,7 @@ class AnalyzeEmailWorkflow:
 
         self._authentication = AuthenticationCollector()
         self._url_collector = URLCollector()
+        self._language_collector = LanguageCollector()
 
         self._service = InvestigationService()
 
@@ -81,6 +83,7 @@ class AnalyzeEmailWorkflow:
         self,
         path: Path,
     ) -> Investigation:
+        """Run a complete email investigation."""
 
         message = self._email_parser.parse(path)
 
@@ -104,6 +107,13 @@ class AnalyzeEmailWorkflow:
 
         evidence.extend(
             self._url_collector.collect(
+                body=body,
+                investigation_id=investigation.id,
+            )
+        )
+
+        evidence.extend(
+            self._language_collector.collect(
                 body=body,
                 investigation_id=investigation.id,
             )
