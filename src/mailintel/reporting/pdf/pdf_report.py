@@ -4,6 +4,7 @@ Executive PDF Investigation Report Generator.
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -50,6 +51,10 @@ class PDFReportGenerator:
         # Title
         # --------------------------------------------------
 
+        generated = datetime.now(
+            UTC,
+        ).strftime("%d %b %Y %H:%M UTC")
+
         story.append(
             Paragraph(
                 "MailIntel AI",
@@ -59,7 +64,7 @@ class PDFReportGenerator:
 
         story.append(
             Paragraph(
-                "Evidence-Driven Email Investigation Report",
+                "<b>Executive Email Investigation Report</b>",
                 body_style,
             )
         )
@@ -80,16 +85,12 @@ class PDFReportGenerator:
         summary_table = Table(
             [
                 ["Investigation ID", investigation.id],
+                ["Classification", "INTERNAL"],
+                ["Generated", generated],
                 ["Email", investigation.title],
                 ["Risk Score", f"{investigation.risk_score}/100"],
-                [
-                    "Evidence",
-                    str(len(investigation.evidence)),
-                ],
-                [
-                    "Findings",
-                    str(len(investigation.findings)),
-                ],
+                ["Evidence", str(len(investigation.evidence))],
+                ["Findings", str(len(investigation.findings))],
             ],
             colWidths=[150, 300],
         )
@@ -99,15 +100,15 @@ class PDFReportGenerator:
                 [
                     ("GRID", (0, 0), (-1, -1), 0.5, HexColor("#999999")),
                     ("BACKGROUND", (0, 0), (0, -1), HexColor("#EFEFEF")),
-                    ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
-                    ("TOPPADDING", (0, 0), (-1, -1), 8),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
+                    ("TOPPADDING", (0, 0), (-1, -1), 7),
                 ]
             )
         )
 
         story.append(summary_table)
 
-        story.append(Spacer(1, 18))
+        story.append(Spacer(1, 16))
 
         # --------------------------------------------------
         # Executive Summary
@@ -120,13 +121,83 @@ class PDFReportGenerator:
             )
         )
 
+        risk = investigation.metadata.get(
+            "risk_profile",
+            {},
+        )
+
+        level = risk.get(
+            "level",
+            "UNKNOWN",
+        )
+
+        executive_summary = (
+            f"This investigation identified multiple indicators "
+            f"consistent with a {level.lower()}-risk email. "
+            f"Authentication analysis, language intelligence and "
+            f"URL inspection contributed to the overall risk "
+            f"assessment. Manual analyst review is recommended."
+        )
+
         story.append(
             Paragraph(
-                summary,
+                executive_summary,
                 body_style,
             )
         )
 
+        story.append(Spacer(1, 18))
+
+        # --------------------------------------------------
+        # Risk Profile
+        # --------------------------------------------------
+
+        risk = investigation.metadata.get(
+            "risk_profile",
+            {},
+        )
+        story.append(
+            Paragraph(
+                "Risk Profile",
+                heading_style,
+            )
+        )
+
+        risk_table = Table(
+            [
+                ["Overall Risk", f"{investigation.risk_score}/100"],
+                [
+                    "Level",
+                    (
+                        "CRITICAL"
+                        if investigation.risk_score >= 90
+                        else "HIGH"
+                        if investigation.risk_score >= 70
+                        else "MEDIUM"
+                        if investigation.risk_score >= 40
+                        else "LOW"
+                    ),
+                ],
+                ["Authentication", f"{risk.get('authentication', 0)}/40"],
+                ["Language", f"{risk.get('language', 0)}/20"],
+                ["URL", f"{risk.get('url', 0)}/20"],
+                ["Identity", f"{risk.get('identity', 0)}/10"],
+                ["Attachment", f"{risk.get('attachment', 0)}/10"],
+            ],
+            colWidths=[180, 120],
+        )
+        risk_table.setStyle(
+            TableStyle(
+                [
+                    ("GRID", (0, 0), (-1, -1), 0.5, HexColor("#AAAAAA")),
+                    ("BACKGROUND", (0, 0), (0, -1), HexColor("#F6F6F6")),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                    ("TOPPADDING", (0, 0), (-1, -1), 6),
+                ]
+            )
+        )
+
+        story.append(risk_table)
         story.append(Spacer(1, 18))
 
         # --------------------------------------------------
@@ -152,7 +223,7 @@ class PDFReportGenerator:
         else:
             story.append(
                 Paragraph(
-                    "No significant findings detected.",
+                    "No rule-based findings were generated. Review collected evidence.",
                     body_style,
                 )
             )
@@ -170,13 +241,28 @@ class PDFReportGenerator:
             )
         )
 
-        recommendations = [
-            "Review authentication failures.",
-            "Inspect embedded URLs before opening.",
-            "Validate sender identity.",
-            "Quarantine suspicious emails.",
-            "Retain this report for investigation records.",
-        ]
+        recommendations: list[str] = []
+        risk = investigation.metadata.get(
+            "risk_profile",
+            {},
+        )
+
+        if risk.get("authentication", 0) > 0:
+            recommendations.append("Verify SPF, DKIM and DMARC authentication.")
+
+        if risk.get("url", 0) > 0:
+            recommendations.append("Inspect embedded URLs before opening.")
+
+        if risk.get("language", 0) > 0:
+            recommendations.append("Treat unsolicited reward or urgent messages as suspicious.")
+
+        if risk.get("attachment", 0) > 0:
+            recommendations.append("Scan all attachments before opening.")
+
+        if risk.get("identity", 0) > 0:
+            recommendations.append("Verify sender identity using an independent channel.")
+
+        recommendations.append("Retain this report for investigation records.")
 
         for item in recommendations:
             story.append(
@@ -191,6 +277,30 @@ class PDFReportGenerator:
         # --------------------------------------------------
         # Footer
         # --------------------------------------------------
+
+        story.append(
+            Paragraph(
+                "<b>Classification:</b> INTERNAL",
+                body_style,
+            )
+        )
+
+        story.append(
+            Paragraph(
+                f"<b>Generated:</b> {generated}",
+                body_style,
+            )
+        )
+        story.append(Spacer(1, 8))
+
+        story.append(
+            Paragraph(
+                f"<b>Report ID:</b> {investigation.id}",
+                body_style,
+            )
+        )
+
+        story.append(Spacer(1, 6))
 
         story.append(
             Paragraph(
