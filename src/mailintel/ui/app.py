@@ -59,7 +59,10 @@ if uploaded_file is not None:
             tmp.write(uploaded_file.read())
             email_path = Path(tmp.name)
 
-        investigation = workflow.run(email_path)
+        investigation = workflow.run(
+            email_path,
+            original_filename=uploaded_file.name,
+        )
 
     summary = summary_engine.generate(investigation)
     domains = domain_engine.extract(investigation)

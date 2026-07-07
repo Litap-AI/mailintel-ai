@@ -85,6 +85,7 @@ class AnalyzeEmailWorkflow:
     def run(
         self,
         path: Path,
+        original_filename: str | None = None,
     ) -> Investigation:
         """Run a complete email investigation."""
 
@@ -96,7 +97,7 @@ class AnalyzeEmailWorkflow:
 
         investigation = Investigation(
             id=generate_investigation_id(),
-            title=path.name,
+            title=original_filename or path.stem,
         )
 
         evidence = []
