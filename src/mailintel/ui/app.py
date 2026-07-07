@@ -25,6 +25,39 @@ pdf_generator = PDFReportGenerator()
 
 st.title("📧 MailIntel AI")
 st.caption("Evidence-Driven Email Investigation Platform")
+st.divider()
+with st.expander(
+    "About MailIntel AI",
+    expanded=True,
+):
+    st.markdown(
+        """
+### Investigation Workflow
+
+📩 Upload RFC822 Email
+
+⬇
+
+🛡 Authentication Analysis
+
+⬇
+
+🧠 Language Intelligence
+
+⬇
+
+🌐 URL Intelligence
+
+⬇
+
+📊 Explainable Risk Assessment
+
+⬇
+
+📄 Executive Investigation Report
+"""
+    )
+
 
 MAX_FILE_SIZE = 25 * 1024 * 1024  # 25 MB
 
@@ -69,6 +102,33 @@ if uploaded_file is not None:
     report = report_builder.build(investigation)
 
     st.success("Investigation Complete")
+    st.divider()
+
+    left, right = st.columns(2)
+
+    with left:
+        st.metric(
+            "Investigation ID",
+            investigation.id,
+        )
+
+        st.metric(
+            "Email",
+            investigation.title,
+        )
+
+    with right:
+        st.metric(
+            "Risk Score",
+            f"{investigation.risk_score}/100",
+        )
+
+        st.metric(
+            "Evidence",
+            len(investigation.evidence),
+        )
+
+    st.divider()
 
     st.progress(min(investigation.risk_score / 100.0, 1.0))
 
@@ -192,8 +252,7 @@ if uploaded_file is not None:
                 st.divider()
 
         else:
-            st.success("No findings detected.")
-
+            st.info("No rule-based findings were generated. Review collected evidence.")
     # --------------------------------------------------
     # AI Summary
     # --------------------------------------------------
@@ -213,7 +272,7 @@ if uploaded_file is not None:
                 st.code(domain)
 
         else:
-            st.success("No domains detected.")
+            st.success("No URLs or domains detected.")
 
     # --------------------------------------------------
     # Language Intelligence
@@ -227,7 +286,7 @@ if uploaded_file is not None:
         ]
 
         if not language_items:
-            st.success("No language intelligence findings.")
+            st.success("No suspicious language indicators detected.")
 
         else:
             for item in language_items:
@@ -261,6 +320,7 @@ if uploaded_file is not None:
 
     with tabs[5]:
         st.subheader("Investigation Report")
+        st.caption("Download investigation artifacts")
 
         st.json(report)
 
@@ -289,3 +349,8 @@ if uploaded_file is not None:
             file_name=f"{investigation.id}.json",
             mime="application/json",
         )
+        st.success("Investigation completed successfully.")
+
+        st.divider()
+
+        st.caption("MailIntel AI • Version 1.0.0")
