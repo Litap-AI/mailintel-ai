@@ -12,7 +12,6 @@ class EmailParser:
         self,
         path: Path,
     ) -> EmailMessage:
-
         with path.open("rb") as fp:
             message = BytesParser(
                 policy=policy.default,
