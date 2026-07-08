@@ -2,7 +2,6 @@ from email import policy
 from email.message import EmailMessage
 from email.parser import BytesParser
 from pathlib import Path
-from typing import cast
 
 
 class EmailParser:
@@ -13,8 +12,9 @@ class EmailParser:
         path: Path,
     ) -> EmailMessage:
         with path.open("rb") as fp:
-            message = BytesParser(
+            parser: BytesParser[EmailMessage] = BytesParser(
                 policy=policy.default,
-            ).parse(fp)
+            )
+            message = parser.parse(fp)
 
-        return cast(EmailMessage, message)
+        return message
