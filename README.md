@@ -1,5 +1,7 @@
 # MailIntel AI
 
+![MailIntel Dashboard](docs/images/dashboard.png)
+
 > Evidence-Driven AI-Powered Email Investigation Platform
 
 [![Python](https://img.shields.io/badge/Python-3.12%2B-blue.svg)](https://www.python.org/)
@@ -98,7 +100,7 @@ pip install -e ".[dev]"
 ## Run Application
 
 ```bash
-streamlit run src/mailintel/ui/app.py
+python -m streamlit run src/mailintel/ui/app.py
 ```
 
 Open:
@@ -181,75 +183,13 @@ The GitHub Actions workflow ensures all quality checks pass before changes are m
 
 # Architecture
 
-```text
-                +----------------------+
-                |   RFC822 Email (.eml)|
-                +----------+-----------+
-                           |
-                           v
-                 Email Parsing Engine
-                           |
-                           v
-              +------------+-------------+
-              |                          |
-              |                          |
-     Authentication             Language Intelligence
-              |                          |
-              +------------+-------------+
-                           |
-                           v
-                  URL Intelligence
-                           |
-                           v
-                 Evidence Collection
-                           |
-                           v
-                   Finding Generation
-                           |
-                           v
-               Explainable Risk Engine
-                           |
-                           v
-              Investigation Report Builder
-                     /               \
-                    /                 \
-             JSON Report        Executive PDF
-                           |
-                           v
-                  Streamlit Dashboard
-```
+![Architecture](docs/images/architecture.png)
 
 ---
 
 # Investigation Workflow
 
-```text
-Upload Email
-      │
-      ▼
-Parse Email
-      │
-      ▼
-Collect Evidence
-      │
-      ▼
-Analyze Authentication
-      │
-      ▼
-Analyze Language
-      │
-      ▼
-Analyze URLs
-      │
-      ▼
-Calculate Risk
-      │
-      ▼
-Generate Investigation
-      │
-      ▼
-Generate Reports
-```
+![Workflow](docs/images/workflow.png)
 
 ---
 
@@ -297,6 +237,8 @@ mailintel-ai/
 
 MailIntel AI generates:
 
+![Executive PDF Report](docs/images/pdf-report.png)
+
 - Executive PDF investigation report
 - JSON investigation report
 - Evidence collection
@@ -306,18 +248,6 @@ MailIntel AI generates:
   
   ---
 
-# Screenshots
-
-> Screenshots will be added in the first public release.
-
-The following images will be available in `docs/images/`:
-
-- Dashboard
-- Executive PDF Report
-- Investigation Workflow
-- System Architecture
-
----
 
 # Sample Investigation
 
