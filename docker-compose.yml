@@ -1,0 +1,18 @@
+services:
+  mailintel:
+    build:
+      context: .
+
+    container_name: mailintel-ai
+
+    ports:
+      - "8501:8501"
+
+    restart: unless-stopped
+
+    environment:
+      PYTHONUNBUFFERED: "1"
+
+    volumes:
+      - .:/app
+      
