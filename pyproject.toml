@@ -4,14 +4,58 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mailintel-ai"
-version = "0.1.0"
-description = "Evidence-driven AI Investigation Platform"
+version = "1.0.0"
+description = "Evidence-driven AI-powered email investigation platform."
 readme = "README.md"
 requires-python = ">=3.12"
+license = { text = "MIT" }
+
+authors = [
+    { name = "Rohit Patil" }
+]
+
+keywords = [
+    "email-security",
+    "cybersecurity",
+    "digital-forensics",
+    "phishing",
+    "email-analysis",
+    "ai",
+    "investigation",
+    "streamlit",
+]
+
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+    "Topic :: Software Development",
+]
 
 dependencies = [
     "pydantic>=2.11",
+    "streamlit>=1.46",
+    "reportlab>=4.4",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.4",
+    "mypy>=1.16",
+    "ruff>=0.12",
+    "pre-commit>=4.2",
+]
+
+[project.urls]
+Homepage = "https://github.com/Litap-AI/mailintel-ai"
+Repository = "https://github.com/Litap-AI/mailintel-ai"
+Issues = "https://github.com/Litap-AI/mailintel-ai/issues"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
