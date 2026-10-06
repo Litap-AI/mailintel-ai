@@ -328,7 +328,7 @@ See the LICENSE file for details.
 
 # Author
 
-**Rohit Patil**
+**Rohit Manikrao Patil**
 
 GitHub
 
